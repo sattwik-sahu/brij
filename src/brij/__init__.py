@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from brij!")
+from brij.utils.cli import app as cli_app

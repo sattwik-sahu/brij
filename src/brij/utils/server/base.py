@@ -1,16 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-import blosc
-import msgpack
-import msgpack_numpy as mnp
 import zmq
-from typing_extensions import Self
 
 from brij.utils.msg import deserialize, serialize
 
-TInput = TypeVar("TInput", bound=dict)
-TOutput = TypeVar("TOutput", bound=dict)
+TInput = TypeVar("TInput")
+TOutput = TypeVar("TOutput")
 
 
 class BaseServer(Generic[TInput, TOutput], ABC):

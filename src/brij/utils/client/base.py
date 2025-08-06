@@ -1,7 +1,8 @@
-import zmq
-from typing import TypeVar, Generic
-from brij.utils.msg import serialize, deserialize
+from typing import Generic, TypeVar
 
+import zmq
+
+from brij.utils.msg import deserialize, serialize
 
 TInput = TypeVar("TInput", bound=dict)
 TOutput = TypeVar("TOutput", bound=dict)
