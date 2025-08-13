@@ -1,6 +1,6 @@
 [project]
 name = "brij"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Sattwik Kumar Sahu", email = "sattwik21@iiserb.ac.in" }]
