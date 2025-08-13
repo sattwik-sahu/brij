@@ -1,12 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic
 
 import zmq
 
-from brij.utils.msg import deserialize, serialize
-
-TInput = TypeVar("TInput")
-TOutput = TypeVar("TOutput")
+from brij.utils.msg import TInput, TOutput, deserialize, serialize
 
 
 class BaseServer(Generic[TInput, TOutput], ABC):
@@ -15,6 +12,12 @@ class BaseServer(Generic[TInput, TOutput], ABC):
     """
 
     def __init__(self, port: int = 5555) -> None:
+        """
+        Initializes the server with a ZeroMQ REP socket bound to the specified port.
+
+        Args:
+            port (int, optional): The port number to bind the server socket to. Defaults to 5555.
+        """
         super().__init__()
         self._context = zmq.Context[zmq.Socket[bytes]]()
         self._socket: zmq.Socket[bytes] = self._context.socket(socket_type=zmq.REP)
@@ -29,6 +32,9 @@ class BaseServer(Generic[TInput, TOutput], ABC):
         self._send(msg=response_msg)
 
     def run(self) -> None:
+        """
+        Runs the server on an infinite loop.
+        """
         while True:
             msg = self._socket.recv()
             self._handle_request(msg=msg)
@@ -38,5 +44,8 @@ class BaseServer(Generic[TInput, TOutput], ABC):
         pass
 
     def close(self) -> None:
+        """
+        Closes the server and terminates the ZeroMQ context.
+        """
         self._socket.close()
         self._context.term()

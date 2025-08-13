@@ -1,12 +1,16 @@
 import importlib.util as imputil
 import inspect
 from pathlib import Path
-from typing_extensions import Annotated
 
 import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from typing_extensions import Annotated
 
 from brij.utils.server.base import BaseServer
 
+console = Console()
 app = typer.Typer(help="Brij CLI for servers with ZMQ")
 
 
@@ -21,15 +25,21 @@ def find_server_class(module) -> type[BaseServer]:
     for _, obj in inspect.getmembers(module, inspect.isclass):
         if issubclass(obj, BaseServer) and obj is not BaseServer:
             return obj
-    raise ValueError("❌ No subclass of BaseServer found in the module.")
+    raise ValueError("[red]❌ No subclass of BaseServer found in the module.[/red]")
 
 
-@app.command("hello")
+@app.command("hello", help="Greets the user")
 def hello():
-    print("Welcome to Brij")
+    console.log(
+        Panel.fit(
+            Text("Welcome to [bold green]Brij[/bold green] 🚀", justify="center"),
+            title="👋 Hello",
+            border_style="green",
+        )
+    )
 
 
-@app.command(name="serve")
+@app.command(name="serve", help="Start a brij server")
 def serve(
     server_file: Annotated[
         Path, typer.Argument(help="Path to the server implementation file")
@@ -41,14 +51,23 @@ def serve(
     """
     Serve a ZMQ server from a given Python file.
     """
-    typer.echo(f"🔍 Loading server from {server_file}...")
+    console.log(f":mag: [cyan]Loading server from[/cyan] {server_file}...")
     module = load_module(server_file)
-    server_class = find_server_class(module)
+    console.log("[green]Module imported successfully.[/green]")
 
-    typer.echo(f"🚀 Starting {server_class.__name__} on port {port}...")
+    server_class = find_server_class(module)
     server_instance = server_class(port=port)
+    console.log(f"[cyan]Found server class[/cyan] {server_class.__name__}")
+
     try:
-        server_instance.run()
+        console.log(
+            f":rocket: [bold cyan]Starting[/] {server_class.__name__} on port [bold yellow]{port}[/bold yellow]"
+        )
+        with console.status(
+            "[bold green]Server is running[/] [dim][Press Ctrl+C to exit][/]",
+            spinner="dots8",
+        ):
+            server_instance.run()
     except KeyboardInterrupt:
-        print("Shutting down server...")
+        console.log(":stop_sign: [red]Shutting down server...[/red]")
         server_instance.close()
